@@ -16,6 +16,9 @@ func Clusterize(objects []Clusterable, minPts int, eps float64) []Cluster {
 	clusters := make([]Cluster, 0)
 	visited := map[string]bool{}
 	for _, point := range objects {
+		if _, isVisited := visited[point.GetID()]; isVisited {
+			continue
+		}
 		neighbours := findNeighbours(point, objects, eps)
 		if len(neighbours)+1 >= minPts {
 			visited[point.GetID()] = CLUSTERED
