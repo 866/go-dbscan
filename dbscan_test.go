@@ -36,8 +36,8 @@ func TestPutAll(t *testing.T) {
 }
  
 //Test find neighbour function
-func TestFindNeighbours(t *testing.T) {
-	log.Println("Executing TestFindNeighbours")
+func TestFindUnclusteredNeighbours(t *testing.T) {
+	log.Println("Executing TestFindUnclusteredNeighbours")
 	clusterList := []Clusterable{
 		SimpleClusterable{0},
 		SimpleClusterable{1},
@@ -45,9 +45,9 @@ func TestFindNeighbours(t *testing.T) {
 		SimpleClusterable{1.5},
 		SimpleClusterable{-0.5},
 	}
-
+	visited := make(map[string]bool)
 	eps := 1.0
-	neighbours := findNeighbours(clusterList[0], clusterList, eps)
+	neighbours := findUnclusteredNeighbours(clusterList[0], clusterList, visited, eps)
 
 	assertEquals(t, 3, len(neighbours))
 }
@@ -68,8 +68,8 @@ func TestMerge(t *testing.T) {
 		one[1],
 		SimpleClusterable{2.4},
 	}
-
-	output := merge(one, two)
+	visitMap := make(map[string]bool)
+	output := mergeWithCluster(one, two, visitMap)
 	assertEquals(t, expected, len(output))
 }
 
