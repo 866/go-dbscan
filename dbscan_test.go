@@ -2,8 +2,10 @@ package dbscan
 
 import (
 	"fmt"
+	"time"
 	"log"
 	"math"
+	"math/rand"
 	"testing"
 )
 
@@ -32,7 +34,7 @@ func TestPutAll(t *testing.T) {
 		t.Errorf("Map does not contain expected size 2 but was %d", mapSize)
 	}
 }
-
+ 
 //Test find neighbour function
 func TestFindNeighbours(t *testing.T) {
 	log.Println("Executing TestFindNeighbours")
@@ -117,6 +119,34 @@ func TestClusterizeNoData(t *testing.T) {
 	minPts := 3
 	clusters := Clusterize(clusterList, minPts, eps)
 	assertEquals(t, 0, len(clusters))
+}
+
+// TestNumberOfPoints checks whether number of clustered points 
+// is not greater than it was before clustering
+func TestNumberOfPoints(t *testing.T) {
+	// Use seed = 1486926237 to discover a bug in 7672773 commit
+	seed := time.Now().Unix()
+	rand.Seed(seed)
+	log.Println("Executing TestNumberOfPoints with random seed:", seed)
+	// Take random number of points(range [5, 105))
+	totalPoints := rand.Intn(100) + 5
+	clusterList := make([]Clusterable, totalPoints)
+	for i := range clusterList {
+		clusterList[i] = SimpleClusterable{rand.Float64()}
+	}
+	// Random epsilon(range [0.2, 1)) and minPts(range [3, 13))
+	eps, minPts := rand.Float64() + 0.1, rand.Intn(10) + 2
+	clusters := Clusterize(clusterList, minPts, eps)
+	nClustered := 0
+	for _, cluster := range clusters {
+		nClustered += len(cluster)
+	}	
+	// Check number of points
+	if !(nClustered <= totalPoints) {
+		t.Errorf("Got the greater number of clustered points than it " + 
+			"was in total.\nTotal number of points: %d\nNumber of " +
+			"points after clustering: %d", totalPoints, nClustered)
+	}
 }
 
 //Assert function. If  the expected value not equals result, function
