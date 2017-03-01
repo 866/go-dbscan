@@ -49,7 +49,7 @@ func TestFindUnclusteredNeighbours(t *testing.T) {
 	eps := 1.0
 	neighbours := findUnclusteredNeighbours(clusterList[0], clusterList, visited, eps)
 
-	assertEquals(t, 3, len(neighbours))
+	assertEquals(t, 4, len(neighbours))
 }
 
 func TestMerge(t *testing.T) {
@@ -75,7 +75,7 @@ func TestMerge(t *testing.T) {
 
 func TestExpandCluster(t *testing.T) {
 	log.Println("Executing TestExpandCluster")
-	expected := 4
+	expected := 5
 	clusterList := []Clusterable{
 		SimpleClusterable{0},
 		SimpleClusterable{1},

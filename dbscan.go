@@ -25,7 +25,6 @@ func Clusterize(objects []Clusterable, minPts int, eps float64) []Cluster {
 			cluster := make(Cluster, 1)
 			cluster[0] = point
 			cluster = expandCluster(cluster, neighbours, visited, minPts, eps)
-
 			if len(cluster) >= minPts {
 				clusters = append(clusters, cluster)
 			}
@@ -41,18 +40,17 @@ func Clusterize(objects []Clusterable, minPts int, eps float64) []Cluster {
 //the distance limit from the point
 func findUnclusteredNeighbours(point Clusterable, points []Clusterable, visited map[string]bool, eps float64) []Clusterable {
 	neighbours := make([]Clusterable, 0)
-	pointID := point.GetID()
 	for _, potNeigb := range points {
 		neigbID := potNeigb.GetID()
 		pointState, isVisited := visited[neigbID]
 		// Check whether the point is unclustered
-		// Doing doublecheck(isVisited+pointState) 
-		// because pointState could have value  
-		// CLUSTERED by default		
-		if (isVisited && pointState == CLUSTERED) {
+		// Doing doublecheck(isVisited+pointState)
+		// because pointState could have value
+		// CLUSTERED by default
+		if isVisited && pointState == CLUSTERED {
 			continue
 		}
-		if pointID != neigbID && potNeigb.Distance(point) <= eps {
+		if potNeigb.Distance(point) <= eps {
 			neighbours = append(neighbours, potNeigb)
 		}
 	}
@@ -61,17 +59,17 @@ func findUnclusteredNeighbours(point Clusterable, points []Clusterable, visited 
 
 //Try to expand existing clutser
 func expandCluster(cluster Cluster, neighbours []Clusterable, visited map[string]bool, minPts int, eps float64) Cluster {
-	seed := make([]Clusterable, len(neighbours))
-	copy(seed, neighbours)
-	for _, point := range seed {
-		pointState, isVisited := visited[point.GetID()]
+	for _, point := range neighbours {
+		_, isVisited := visited[point.GetID()]
 		if !isVisited {
-			currentNeighbours := findUnclusteredNeighbours(point, seed, visited, eps)
+			// Mark as visited
+			visited[point.GetID()] = NOISE
+			currentNeighbours := findUnclusteredNeighbours(point, neighbours, visited, eps)
 			if len(currentNeighbours)+1 >= minPts {
 				cluster = mergeWithCluster(cluster, currentNeighbours, visited)
 			}
 		}
-		if isVisited && pointState == NOISE {
+		if visited[point.GetID()] != CLUSTERED {
 			visited[point.GetID()] = CLUSTERED
 			cluster = append(cluster, point)
 		}
@@ -85,7 +83,7 @@ func mergeWithCluster(clusterPoints []Clusterable, newPoints []Clusterable, visi
 	for _, point := range newPoints {
 		visited[point.GetID()] = CLUSTERED
 	}
-	putAll(mergeMap, clusterPoints) 
+	putAll(mergeMap, clusterPoints)
 	putAll(mergeMap, newPoints)
 	merged := make([]Clusterable, 0)
 	for _, val := range mergeMap {
