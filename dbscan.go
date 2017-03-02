@@ -1,17 +1,22 @@
 package dbscan
 
 const (
-	NOISE     = false
+	// NOISE constant marks point as noise point.
+	NOISE = false
+	// CLUSTERED constant marks point as clustered point.
 	CLUSTERED = true
 )
 
+// Clusterable is an interface for the point that can be clustered.
 type Clusterable interface {
 	Distance(c interface{}) float64
 	GetID() string
 }
 
+// Cluster is a group of clusterable objects.
 type Cluster []Clusterable
 
+// Clusterize applies clustering on data using DBSCAN algorithm
 func Clusterize(objects []Clusterable, minPts int, eps float64) []Cluster {
 	clusters := make([]Cluster, 0)
 	visited := map[string]bool{}
